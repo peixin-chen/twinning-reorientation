@@ -1,0 +1,7 @@
+#place all the Euler angles here (I got them from AztecCrystal software)
+71.43 48.0 27.89
+359.69 40.08 45.4
+176.74 30.61 48.72
+9.27 38.63 32.69
+163.3 36.13 62.52
+114.23 22.54 79.28
