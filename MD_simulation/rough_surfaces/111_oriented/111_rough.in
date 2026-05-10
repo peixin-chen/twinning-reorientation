@@ -1,0 +1,41 @@
+units				metal
+atom_style			atomic
+boundary			p p f
+
+lattice				fcc 3.615
+read_data			111_rough.data
+
+group				substrate_group type 1
+group				heated_group type 2 3
+
+pair_style			eam/alloy
+pair_coeff			* * CuYM.eam.alloy Cu Cu Cu
+neighbor			0.3 bin
+neigh_modify			delay 5
+
+compute				real_temp heated_group temp
+compute_modify			real_temp dynamic/dof yes extra/dof 0
+
+velocity			substrate_group set 0 0 0
+velocity			heated_group create 698 788 rot yes dist gaussian
+
+timestep			0.005
+fix				1 all nve
+fix				2 substrate_group setforce 0 0 0
+fix				3 heated_group langevin 698 698 0.5 546238
+run				3000
+reset_timestep			0
+
+region				deposit_region block $(xlo) $(xhi) $(ylo) $(yhi) &
+					0 $(zhi) units box
+fix					4 heated_group deposit 254448 3 50 23658 region deposit_region &
+					local 0.8 0.8 0.5
+#Deposit one atom every 50 steps until 7068*36 atoms (36 (111) monolayer) are deposited. The atom will be placed ~0.8*a0 above the system
+fix					5 heated_group wall/reflect zhi EDGE
+
+thermo				40000
+thermo_modify		temp real_temp
+
+dump				1 all atom 200000 dump_111_rough.xyz
+
+run					12722400
